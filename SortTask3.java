@@ -1,0 +1,212 @@
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class SortTask3<T> // Class Sort is a generic class with type parameter T
+{
+    T[] array; // The array of objects of type T we want to sort
+    Comparator<T> comp; // A Comparator instance suitable for comparing objects of type T
+    
+    public static void main(String[] args)
+    {
+        //Moved the types of separators into their own methods for cleanliness.
+        //These are just called from the main method as seen below.
+
+        System.out.println("\r\nQuestion 1:");
+        //Q1
+        stringSort();
+        doubleSort();
+
+        System.out.println("\r\nQuestion 2:");
+        //Q2
+        lambdaStringSort();
+        lambdaDoubleSort();
+
+        //Q3
+        //all work contained within the sort(int low, int n)
+    }
+
+    public static void stringSort()
+    {
+        // A comparator for objects of type String:
+        Comparator<String> compString = new Comparator<String>()
+        {
+            public int compare(String a, String b)
+            {
+                if (a.compareTo(b) > 0)
+                return 1;
+                else
+                return 0;
+            }
+        };
+        
+        SortTask3<String> sortStrings = new SortTask3<String>();
+        
+        // Initialising an array of Strings with 16 unordered elements.
+        // Array length must be a power of 2.
+        String[] arrayOfStrings = { "Blue", "Yellow", "Almond", "Onyx", "Peach", "Gold",
+        "Red", "Melon", "Lava", "Beige", "Aqua", "Lilac", "Capri", "Orange", "Mauve", "Plum" };
+        
+        System.out.println("\r\nOriginal string array: " + Arrays.toString(arrayOfStrings));
+        
+        // Sorting the array by calling the sort-method
+        sortStrings.sort(arrayOfStrings, compString);
+        
+        System.out.println("Sorted string array: " + Arrays.toString(arrayOfStrings));
+    }
+
+    public static void lambdaStringSort()
+    {    
+        // A comparator for objects of type String:
+        Comparator<String> compString = (String a, String b) ->
+        {
+            if (a.compareTo(b) > 0)
+                return 1;
+            else
+                return 0;
+        };
+        
+        SortTask3<String> sortStrings = new SortTask3<String>();
+        
+        // Initialising an array of Strings with 16 unordered elements.
+        // Array length must be a power of 2.
+        String[] arrayOfStrings = { "Blue", "Yellow", "Almond", "Onyx", "Peach", "Gold",
+        "Red", "Melon", "Lava", "Beige", "Aqua", "Lilac", "Capri", "Orange", "Mauve", "Plum" };
+        
+        System.out.println("\r\nOriginal string array: " + Arrays.toString(arrayOfStrings));
+        
+        // Sorting the array by calling the sort-method
+        sortStrings.sort(arrayOfStrings, compString);
+        
+        System.out.println("Sorted string array: " + Arrays.toString(arrayOfStrings));
+    }
+
+    public static void doubleSort()
+    {
+        //All that has to be changed for this to work smoothly are the expected data types,
+        //Specifically we are just moving from data type String -> Double.
+
+        // A comparator for objects of type Double:
+        Comparator<Double> compDouble = new Comparator<Double>()
+        {
+            public int compare(Double a, Double b)
+            {
+                if (a.compareTo(b) > 0)
+                return 1;
+                else
+                return 0;
+            }
+        };
+        
+        SortTask3<Double> sortDouble = new SortTask3<Double>();
+        
+        // Initialising an array of Doubles with 16 unordered elements.
+        // Array length must be a power of 2.
+        // As we are feeding values to Double[] rather than double[] we need to specify that
+        // the given values are in fact double, or they'll be assumed as ints. (No Duck typing!)
+        // To do this we simple add "d" to each given element.
+        Double[] arrayOfDoubles = {99999d,1d,35d,785d,345d,33d,9546d,8d,79d,10d,1998d,16d,1052d,53252d,63d,101d};
+        
+        System.out.println("\r\nOriginal double array: " + Arrays.toString(arrayOfDoubles));
+        
+        // Sorting the array by calling the sort-method
+        sortDouble.sort(arrayOfDoubles, compDouble);
+        
+        System.out.println("Sorted double array: " + Arrays.toString(arrayOfDoubles));
+    }
+
+    public static void lambdaDoubleSort()
+    {
+        // A comparator for objects of type String:
+        Comparator<Double> compDouble = (Double a, Double b) ->
+        {
+            if (a.compareTo(b) > 0)
+                return 1;
+            else
+                return 0;
+        };
+        
+        SortTask3<Double> sortDouble = new SortTask3<Double>();
+        
+        // Initialising an array of Strings with 16 unordered elements.
+        // Array length must be a power of 2.
+        Double[] arrayOfDoubles = {99999d,1d,35d,785d,345d,33d,9546d,8d,79d,10d,1998d,16d,1052d,53252d,63d,101d};
+        
+        System.out.println("\r\nOriginal double array: " + Arrays.toString(arrayOfDoubles));
+        
+        // Sorting the array by calling the sort-method
+        sortDouble.sort(arrayOfDoubles, compDouble);
+        
+        System.out.println("Sorted double array: " + Arrays.toString(arrayOfDoubles));
+    }
+    
+    public void sort(T[] array, Comparator<T> comp)
+    { // Array length must be a power of 2
+        this.array = array;
+        this.comp = comp;
+        sort(0, array.length);
+    }
+
+    //Q3
+    private void sort(int low, int n)
+    {
+        if (n > 1)
+        {
+            int mid = n >> 1;
+
+            //Here we create an anonymous inner class of our runnable thread,
+            //This means we can effectively multithread the workload involved
+            //within the "sort" method.
+            Thread sortThread1 = new Thread(new Runnable()
+            {
+                @Override
+                //Here we feed the thread the tasks to be carried out, e.g our sorting.
+                public void run()
+                {
+                    sort(low, mid);
+                    sort(low + mid, mid);
+                }
+            });
+
+            //Kickstart our thread to "Running"
+            sortThread1.start();
+
+            //Here we join our thread, holding our method until our threaded work is completed,
+            //as this is a requirement before we continue with out "combine" work.
+            //The below worked a lot more effectively than manually trying to lock/unlock threads.
+            try  
+            {       
+                sortThread1.join();
+                
+            }catch(Exception e){System.out.println(e);}    
+            
+            combine(low, n, 1);
+        }
+    }
+
+    private void combine(int low, int n, int st)
+    {
+        int m = st << 1;
+        if (m < n)
+        {
+            combine(low, n, m);
+            combine(low + st, n, m);
+            for (int i = low + st; i + st < low + n; i += m)
+            compareAndSwap(i, i + st);
+        } else
+            compareAndSwap(low, low + st);
+        }
+
+        private void compareAndSwap(int i, int j)
+        {
+            if (comp.compare(array[i], array[j]) > 0)
+            swap(i, j);
+        }
+
+        private void swap(int i, int j)
+        {
+            T h = array[i];
+            array[i] = array[j];
+            array[j] = h;
+        }
+}
+
